@@ -1,14 +1,13 @@
-
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
+import { Search, User, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Cart } from '@/components/cart/Cart';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [cartCount, setCartCount] = useState(3); // Mock cart count
-
+  
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   return (
@@ -44,16 +43,7 @@ const Navbar = () => {
             <Button variant="ghost" size="icon" className="hidden md:flex">
               <User className="w-5 h-5" />
             </Button>
-            <Link to="/cart" className="relative">
-              <Button variant="ghost" size="icon">
-                <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-brand-magenta text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
+            <Cart />
             <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu}>
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
