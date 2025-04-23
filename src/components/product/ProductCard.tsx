@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, Heart } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCart } from '@/contexts/CartContext';
 
 interface ProductCardProps {
   id: string;
@@ -25,6 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   category,
 }) => {
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addToCart } = useCart();
   
   const toggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -32,8 +34,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
     toast(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
   };
   
-  const addToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    addToCart(id, 1);
     toast.success(`${name} added to cart!`);
   };
 
@@ -94,7 +97,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <span className="font-bold text-gray-900">{formattedPrice}</span>
             <Button 
               size="sm" 
-              onClick={addToCart} 
+              onClick={handleAddToCart} 
               className="rounded-full bg-brand-purple hover:bg-brand-purple-dark btn-hover"
             >
               <ShoppingCart className="w-4 h-4 mr-1" /> Add
