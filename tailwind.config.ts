@@ -61,8 +61,24 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
-			},
+				},
+                // Custom tech brand colors
+                brand: {
+                    purple: {
+                        DEFAULT: '#6E59A5',
+                        light: '#9b87f5',
+                        dark: '#483d6b'
+                    },
+                    magenta: '#D946EF',
+                    blue: '#0EA5E9',
+                    orange: '#F97316',
+                    soft: {
+                        purple: '#E5DEFF',
+                        pink: '#FFDEE2',
+                        blue: '#D3E4FD',
+                        gray: '#F1F0FB'
+                    }
+                },
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
