@@ -1,7 +1,7 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { queryTable } from '@/utils/supabaseHelpers';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, ArrowRight, Clock } from 'lucide-react';
@@ -14,22 +14,20 @@ const OrderConfirmation = () => {
   const { data: order, isLoading: orderLoading } = useQuery({
     queryKey: ['order', orderId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('orders')
+      const { data, error } = await queryTable('orders')
         .select('*')
         .eq('id', orderId)
         .single();
 
       if (error) throw error;
-      return data as Order;
+      return data as unknown as Order;
     },
   });
 
   const { data: items, isLoading: itemsLoading } = useQuery({
     queryKey: ['order-items', orderId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('order_items')
+      const { data, error } = await queryTable('order_items')
         .select(`
           *,
           product:product_id (
@@ -41,7 +39,7 @@ const OrderConfirmation = () => {
         .eq('order_id', orderId);
 
       if (error) throw error;
-      return data as OrderItemWithProduct[];
+      return data as unknown as OrderItemWithProduct[];
     },
     enabled: !!orderId,
   });

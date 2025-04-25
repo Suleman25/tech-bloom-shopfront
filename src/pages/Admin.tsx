@@ -63,7 +63,10 @@ const Admin = () => {
               <h3 className="text-xl font-semibold text-center mb-2">{item.title}</h3>
               <p className="text-gray-500 text-center">{item.description}</p>
               <Button 
-                onClick={() => navigate(item.path)} 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(item.path);
+                }} 
                 className="w-full mt-6"
               >
                 Go to {item.title}

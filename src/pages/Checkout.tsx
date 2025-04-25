@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
+import { queryTable } from '@/utils/supabaseHelpers';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,8 +46,7 @@ const Checkout = () => {
       
       const productIds = items.map(item => item.product_id);
       
-      const { data, error } = await supabase
-        .from('products')
+      const { data, error } = await queryTable('products')
         .select('*')
         .in('id', productIds);
         
@@ -91,8 +91,7 @@ const Checkout = () => {
     
     try {
       // Create order
-      const { data: order, error: orderError } = await (supabase
-        .from('orders') as any)
+      const { data: order, error: orderError } = await queryTable('orders')
         .insert([{
           user_id: user.id,
           status: 'pending',
@@ -123,15 +122,14 @@ const Checkout = () => {
         };
       });
       
-      const { error: itemsError } = await (supabase
-        .from('order_items') as any)
+      const { error: itemsError } = await queryTable('order_items')
         .insert(orderItems);
         
       if (itemsError) throw itemsError;
       
       // Clear cart (delete all items)
       for (const item of items) {
-        await supabase.from('cart_items').delete().eq('id', item.id);
+        await queryTable('cart_items').delete().eq('id', item.id);
       }
       
       toast.success('Order placed successfully!');

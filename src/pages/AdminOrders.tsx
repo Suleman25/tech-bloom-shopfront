@@ -1,10 +1,10 @@
 
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import Layout from '@/components/layout/Layout';
+import { queryTable } from '@/utils/supabaseHelpers';
 import {
   Table,
   TableBody,
@@ -52,8 +52,7 @@ const AdminOrders = () => {
   const { data: orders, isLoading, refetch } = useQuery({
     queryKey: ['admin-orders', statusFilter],
     queryFn: async () => {
-      let query = supabase
-        .from('orders')
+      let query = queryTable('orders')
         .select(`
           id, 
           user_id,
@@ -71,16 +70,18 @@ const AdminOrders = () => {
       }
 
       const { data, error } = await query.order('created_at', { ascending: false });
+      
       if (error) throw error;
-      return data as OrderWithProfile[];
+      
+      // Type assertion to cast the result to the expected type
+      return data as unknown as OrderWithProfile[];
     },
     enabled: !!isAdmin,
   });
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from('orders')
+      const { error } = await queryTable('orders')
         .update({ status: newStatus })
         .eq('id', orderId);
 
@@ -211,7 +212,10 @@ const AdminOrders = () => {
                           className="cursor-pointer"
                           onClick={(e) => {
                             // Prevent navigation when clicking on the select
-                            if ((e.target as HTMLElement)?.closest('select')) return;
+                            if ((e.target as HTMLElement)?.closest('select') || 
+                                (e.target as HTMLElement)?.closest('[role="combobox"]')) {
+                              return;
+                            }
                             navigate(`/order-confirmation/${order.id}`);
                           }}
                         >
@@ -236,7 +240,6 @@ const AdminOrders = () => {
                             >
                               <SelectTrigger 
                                 className="w-[130px]"
-                                onClick={(e) => e.stopPropagation()}
                               >
                                 <SelectValue placeholder="Change status" />
                               </SelectTrigger>
