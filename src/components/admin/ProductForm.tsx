@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
 interface ProductFormData {
+  id?: string; // Made id optional since it doesn't exist for new products
   name: string;
   description: string;
   price: number;
@@ -30,7 +31,7 @@ const ProductForm = ({ product, onSuccess }: ProductFormProps) => {
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     try {
-      const { error } = product
+      const { error } = product?.id
         ? await supabase
             .from('products')
             .update(data)
