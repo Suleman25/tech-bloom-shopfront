@@ -9,14 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ChevronRight, Package, Clock, Check, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-interface Order {
-  id: string;
-  created_at: string;
-  status: string;
-  total_amount: number;
-  shipping_address: string;
-}
+import { Order } from '@/types/order';
 
 const Orders = () => {
   const navigate = useNavigate();

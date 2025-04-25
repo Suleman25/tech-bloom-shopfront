@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -92,8 +91,8 @@ const Checkout = () => {
     
     try {
       // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
+      const { data: order, error: orderError } = await (supabase
+        .from('orders') as any)
         .insert([{
           user_id: user.id,
           status: 'pending',
@@ -124,8 +123,8 @@ const Checkout = () => {
         };
       });
       
-      const { error: itemsError } = await supabase
-        .from('order_items')
+      const { error: itemsError } = await (supabase
+        .from('order_items') as any)
         .insert(orderItems);
         
       if (itemsError) throw itemsError;

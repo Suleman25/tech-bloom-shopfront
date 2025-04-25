@@ -5,29 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, ArrowRight, Clock } from 'lucide-react';
-
-// Define interfaces for order data
-interface OrderData {
-  id: string;
-  user_id: string;
-  status: string;
-  total_amount: number;
-  created_at: string;
-  shipping_address: string | null;
-}
-
-interface OrderItemData {
-  id: string;
-  order_id: string;
-  product_id: string;
-  quantity: number;
-  unit_price: number;
-  product?: {
-    name: string;
-    price: number;
-    image_url: string | null;
-  };
-}
+import { Order, OrderItemWithProduct } from '@/types/order';
 
 const OrderConfirmation = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -37,13 +15,13 @@ const OrderConfirmation = () => {
     queryKey: ['order', orderId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('orders' as any)
+        .from('orders')
         .select('*')
         .eq('id', orderId)
         .single();
 
       if (error) throw error;
-      return data as OrderData;
+      return data as Order;
     },
   });
 
@@ -51,7 +29,7 @@ const OrderConfirmation = () => {
     queryKey: ['order-items', orderId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('order_items' as any)
+        .from('order_items')
         .select(`
           *,
           product:product_id (
@@ -63,7 +41,7 @@ const OrderConfirmation = () => {
         .eq('order_id', orderId);
 
       if (error) throw error;
-      return data as OrderItemData[];
+      return data as OrderItemWithProduct[];
     },
     enabled: !!orderId,
   });

@@ -26,13 +26,9 @@ import { toast } from 'sonner';
 import { Loader2, Search, Package, Clock, Check, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Order } from '@/types/order';
 
-interface Order {
-  id: string;
-  user_id: string;
-  status: string;
-  total_amount: number;
-  created_at: string;
+interface OrderWithProfile extends Order {
   profiles: {
     first_name: string | null;
     last_name: string | null;
@@ -57,7 +53,7 @@ const AdminOrders = () => {
     queryKey: ['admin-orders', statusFilter],
     queryFn: async () => {
       let query = supabase
-        .from('orders' as any)
+        .from('orders')
         .select(`
           id, 
           user_id,
@@ -68,7 +64,7 @@ const AdminOrders = () => {
             first_name,
             last_name
           )
-        `) as any;
+        `);
 
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
@@ -76,7 +72,7 @@ const AdminOrders = () => {
 
       const { data, error } = await query.order('created_at', { ascending: false });
       if (error) throw error;
-      return data as Order[];
+      return data as OrderWithProfile[];
     },
     enabled: !!isAdmin,
   });
@@ -84,7 +80,7 @@ const AdminOrders = () => {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
       const { error } = await supabase
-        .from('orders' as any)
+        .from('orders')
         .update({ status: newStatus })
         .eq('id', orderId);
 
@@ -237,9 +233,11 @@ const AdminOrders = () => {
                             <Select
                               defaultValue={order.status}
                               onValueChange={(value) => handleStatusChange(order.id, value)}
-                              onClick={(e) => e.stopPropagation()}
                             >
-                              <SelectTrigger className="w-[130px]">
+                              <SelectTrigger 
+                                className="w-[130px]"
+                                onClick={(e) => e.stopPropagation()}
+                              >
                                 <SelectValue placeholder="Change status" />
                               </SelectTrigger>
                               <SelectContent>
