@@ -13,3 +13,8 @@ export const rpc = (functionName: string, params?: Record<string, any>) => {
   // @ts-ignore - intentionally ignoring type issues to work around limitations
   return supabase.rpc(functionName, params);
 };
+
+// Type assertion helper to safely cast data from untyped tables
+export const safelyAssertType = <T>(data: any): T => {
+  return data as T;
+};

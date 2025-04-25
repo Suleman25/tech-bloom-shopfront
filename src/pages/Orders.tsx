@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { queryTable } from '@/utils/supabaseHelpers';
+import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ const Orders = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as unknown as Order[];
+      return safelyAssertType<Order[]>(data);
     },
     enabled: !!user,
   });

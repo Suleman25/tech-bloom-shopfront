@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { queryTable } from '@/utils/supabaseHelpers';
+import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
 import {
   Table,
   TableBody,
@@ -52,6 +52,8 @@ const AdminOrders = () => {
   const { data: orders, isLoading, refetch } = useQuery({
     queryKey: ['admin-orders', statusFilter],
     queryFn: async () => {
+      if (!isAdmin) return [];
+      
       let query = queryTable('orders')
         .select(`
           id, 
@@ -74,7 +76,7 @@ const AdminOrders = () => {
       if (error) throw error;
       
       // Type assertion to cast the result to the expected type
-      return data as unknown as OrderWithProfile[];
+      return safelyAssertType<OrderWithProfile[]>(data);
     },
     enabled: !!isAdmin,
   });

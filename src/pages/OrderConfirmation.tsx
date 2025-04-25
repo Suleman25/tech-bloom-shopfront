@@ -1,7 +1,7 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { queryTable } from '@/utils/supabaseHelpers';
+import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, ArrowRight, Clock } from 'lucide-react';
@@ -20,7 +20,7 @@ const OrderConfirmation = () => {
         .single();
 
       if (error) throw error;
-      return data as unknown as Order;
+      return safelyAssertType<Order>(data);
     },
   });
 
@@ -39,7 +39,7 @@ const OrderConfirmation = () => {
         .eq('order_id', orderId);
 
       if (error) throw error;
-      return data as unknown as OrderItemWithProduct[];
+      return safelyAssertType<OrderItemWithProduct[]>(data);
     },
     enabled: !!orderId,
   });

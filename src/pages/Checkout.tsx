@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { queryTable } from '@/utils/supabaseHelpers';
+import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,13 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image_url: string | null;
+}
 
 interface CheckoutFormData {
   fullName: string;
@@ -51,7 +58,7 @@ const Checkout = () => {
         .in('id', productIds);
         
       if (error) throw error;
-      return data;
+      return safelyAssertType<Product[]>(data);
     },
     enabled: items.length > 0
   });
