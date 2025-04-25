@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -32,6 +32,9 @@ const Navbar = () => {
             <Link to="/products" className="text-sm font-medium hover:text-brand-purple">Products</Link>
             <Link to="/categories" className="text-sm font-medium hover:text-brand-purple">Categories</Link>
             <Link to="/deals" className="text-sm font-medium hover:text-brand-purple">Deals</Link>
+            {isAdmin && (
+              <Link to="/admin" className="text-sm font-medium hover:text-brand-purple">Admin</Link>
+            )}
           </nav>
 
           <div className="hidden md:flex relative w-64 lg:w-80">
@@ -81,6 +84,9 @@ const Navbar = () => {
             <Link to="/products" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Products</Link>
             <Link to="/categories" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Categories</Link>
             <Link to="/deals" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Deals</Link>
+            {isAdmin && (
+              <Link to="/admin" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Admin</Link>
+            )}
             {user ? (
               <button onClick={handleSignOut} className="px-4 py-3 text-sm font-medium hover:bg-gray-50">
                 Sign Out

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,6 +8,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +50,14 @@ const AppRoutes = () => {
       <Route path="/products" element={<NotFound />} />
       <Route path="/product/:id" element={<NotFound />} />
       <Route 
+        path="/admin" 
+        element={
+          <AdminRoute>
+            <Admin />
+          </AdminRoute>
+        } 
+      />
+      <Route 
         path="/cart" 
         element={
           <ProtectedRoute>
@@ -57,14 +65,7 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
-      <Route 
-        path="/checkout" 
-        element={
-          <ProtectedRoute>
-            <NotFound />
-          </ProtectedRoute>
-        } 
-      />
+      <Route path="/checkout" element={<NotFound />} />
       <Route path="/login" element={<Navigate to="/auth" replace />} />
       <Route path="/signup" element={<Navigate to="/auth" replace />} />
       <Route path="/forgot-password" element={<NotFound />} />
