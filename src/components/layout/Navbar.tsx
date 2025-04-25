@@ -1,6 +1,7 @@
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, Menu, X } from 'lucide-react';
+import { Search, User, Menu, X, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Cart } from '@/components/cart/Cart';
@@ -30,10 +31,15 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-sm font-medium hover:text-brand-purple">Home</Link>
             <Link to="/products" className="text-sm font-medium hover:text-brand-purple">Products</Link>
-            <Link to="/categories" className="text-sm font-medium hover:text-brand-purple">Categories</Link>
-            <Link to="/deals" className="text-sm font-medium hover:text-brand-purple">Deals</Link>
+            <Link to="/orders" className="text-sm font-medium hover:text-brand-purple">Orders</Link>
             {isAdmin && (
-              <Link to="/admin" className="text-sm font-medium hover:text-brand-purple">Admin</Link>
+              <Link 
+                to="/admin/dashboard" 
+                className="text-sm font-medium bg-brand-purple text-white px-3 py-2 rounded-md flex items-center gap-1.5 hover:bg-brand-purple/90"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Admin Panel
+              </Link>
             )}
           </nav>
 
@@ -82,10 +88,15 @@ const Navbar = () => {
           <nav className="flex flex-col py-4">
             <Link to="/" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Home</Link>
             <Link to="/products" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Products</Link>
-            <Link to="/categories" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Categories</Link>
-            <Link to="/deals" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Deals</Link>
+            <Link to="/orders" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Orders</Link>
             {isAdmin && (
-              <Link to="/admin" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Admin</Link>
+              <Link 
+                to="/admin/dashboard" 
+                className="px-4 py-3 text-sm font-medium bg-brand-purple/10 text-brand-purple flex items-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Admin Panel
+              </Link>
             )}
             {user ? (
               <button onClick={handleSignOut} className="px-4 py-3 text-sm font-medium hover:bg-gray-50">

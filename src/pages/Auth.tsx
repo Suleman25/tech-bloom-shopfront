@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { user, signIn, signUp, isLoading } = useAuth();
+  const { user, signIn, signUp, isLoading, isAdmin } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -19,11 +19,15 @@ const Auth = () => {
   });
 
   useEffect(() => {
-    // If user is already logged in, redirect to home
+    // If user is already logged in, redirect to appropriate dashboard
     if (user) {
-      navigate('/');
+      if (isAdmin) {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/');
+      }
     }
-  }, [user, navigate]);
+  }, [user, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +35,11 @@ const Auth = () => {
     try {
       if (isSignUp) {
         await signUp(formData.email, formData.password, formData.firstName, formData.lastName);
-        navigate('/');
       } else {
         await signIn(formData.email, formData.password);
-        navigate('/');
       }
+      
+      // After successful login/signup, the useEffect above will handle redirection
     } catch (error: any) {
       console.error("Authentication error:", error);
     }

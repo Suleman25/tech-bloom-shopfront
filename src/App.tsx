@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -70,6 +69,14 @@ const AppRoutes = () => {
       <Route path="/product/:id" element={<ProductDetail />} />
       <Route 
         path="/admin" 
+        element={
+          <AdminRoute>
+            <Admin />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/products" 
         element={
           <AdminRoute>
             <Admin />

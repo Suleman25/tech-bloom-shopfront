@@ -1,17 +1,15 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
-import ProductTable from '@/components/admin/ProductTable';
-import ProductForm from '@/components/admin/ProductForm';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { Loader2, LayoutDashboard, PackageOpen, ShoppingCart } from 'lucide-react';
 
 const Admin = () => {
   const { isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAdmin) {
@@ -21,26 +19,58 @@ const Admin = () => {
   }, [isAdmin, isLoading, navigate]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return <div className="flex items-center justify-center h-screen"><Loader2 className="animate-spin h-8 w-8" /></div>;
   }
 
   if (!isAdmin) return null;
 
+  const adminMenuItems = [
+    {
+      title: "Dashboard",
+      description: "View sales analytics, recent orders, and inventory status",
+      icon: <LayoutDashboard className="h-8 w-8" />,
+      path: "/admin/dashboard"
+    },
+    {
+      title: "Product Management",
+      description: "Add, edit, or remove products from your inventory",
+      icon: <PackageOpen className="h-8 w-8" />,
+      path: "/admin/products"
+    },
+    {
+      title: "Order Management",
+      description: "Process and manage customer orders",
+      icon: <ShoppingCart className="h-8 w-8" />,
+      path: "/admin/orders"
+    }
+  ];
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Product Management</h1>
-          <Button onClick={() => setShowForm(!showForm)}>
-            {showForm ? 'View Products' : 'Add New Product'}
-          </Button>
+        <h1 className="text-3xl font-bold mb-8">Admin Panel</h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {adminMenuItems.map((item, index) => (
+            <div 
+              key={index} 
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => navigate(item.path)}
+            >
+              <div className="flex items-center justify-center h-16 w-16 bg-brand-purple/10 rounded-full mb-4 mx-auto">
+                {item.icon}
+              </div>
+              <h3 className="text-xl font-semibold text-center mb-2">{item.title}</h3>
+              <p className="text-gray-500 text-center">{item.description}</p>
+              <Button 
+                onClick={() => navigate(item.path)} 
+                className="w-full mt-6"
+              >
+                Go to {item.title}
+              </Button>
+            </div>
+          ))}
         </div>
-
-        {showForm ? (
-          <ProductForm onSuccess={() => setShowForm(false)} />
-        ) : (
-          <ProductTable onEdit={() => setShowForm(true)} />
-        )}
       </div>
     </Layout>
   );
