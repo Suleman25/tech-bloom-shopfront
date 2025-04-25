@@ -6,6 +6,29 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, ArrowRight, Clock } from 'lucide-react';
 
+// Define interfaces for order data
+interface OrderData {
+  id: string;
+  user_id: string;
+  status: string;
+  total_amount: number;
+  created_at: string;
+  shipping_address: string | null;
+}
+
+interface OrderItemData {
+  id: string;
+  order_id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  product?: {
+    name: string;
+    price: number;
+    image_url: string | null;
+  };
+}
+
 const OrderConfirmation = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
@@ -14,13 +37,13 @@ const OrderConfirmation = () => {
     queryKey: ['order', orderId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('orders')
+        .from('orders' as any)
         .select('*')
         .eq('id', orderId)
         .single();
 
       if (error) throw error;
-      return data;
+      return data as OrderData;
     },
   });
 
@@ -28,7 +51,7 @@ const OrderConfirmation = () => {
     queryKey: ['order-items', orderId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('order_items')
+        .from('order_items' as any)
         .select(`
           *,
           product:product_id (
@@ -40,7 +63,7 @@ const OrderConfirmation = () => {
         .eq('order_id', orderId);
 
       if (error) throw error;
-      return data;
+      return data as OrderItemData[];
     },
     enabled: !!orderId,
   });
@@ -147,7 +170,7 @@ const OrderConfirmation = () => {
             ))}
           </div>
 
-          {shippingAddress && (
+          {shippingAddress && Object.keys(shippingAddress).length > 0 && (
             <>
               <h2 className="text-xl font-semibold mb-4">Shipping Address</h2>
               <div className="bg-gray-50 rounded-lg p-4 mb-6">

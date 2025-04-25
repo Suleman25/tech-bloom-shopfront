@@ -93,11 +93,11 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/cart" 
+        path="/admin/orders/:id" 
         element={
-          <ProtectedRoute>
-            <NotFound />
-          </ProtectedRoute>
+          <AdminRoute>
+            <OrderConfirmation />
+          </AdminRoute>
         } 
       />
       <Route 
@@ -124,10 +124,6 @@ const AppRoutes = () => {
           </ProtectedRoute>
         } 
       />
-      <Route path="/login" element={<Navigate to="/auth" replace />} />
-      <Route path="/signup" element={<Navigate to="/auth" replace />} />
-      <Route path="/forgot-password" element={<NotFound />} />
-      <Route path="/category/:id" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

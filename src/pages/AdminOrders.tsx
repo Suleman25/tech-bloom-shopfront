@@ -57,7 +57,7 @@ const AdminOrders = () => {
     queryKey: ['admin-orders', statusFilter],
     queryFn: async () => {
       let query = supabase
-        .from('orders')
+        .from('orders' as any)
         .select(`
           id, 
           user_id,
@@ -68,14 +68,13 @@ const AdminOrders = () => {
             first_name,
             last_name
           )
-        `)
-        .order('created_at', { ascending: false });
+        `) as any;
 
       if (statusFilter !== 'all') {
         query = query.eq('status', statusFilter);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query.order('created_at', { ascending: false });
       if (error) throw error;
       return data as Order[];
     },
@@ -85,7 +84,7 @@ const AdminOrders = () => {
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
       const { error } = await supabase
-        .from('orders')
+        .from('orders' as any)
         .update({ status: newStatus })
         .eq('id', orderId);
 

@@ -17,6 +17,32 @@ import {
   Box,
 } from 'lucide-react';
 
+// Define types for order data since they're not in the Supabase types yet
+interface OrderData {
+  id: string;
+  created_at: string;
+  status: 'pending' | 'shipped' | 'delivered' | 'cancelled';
+  total_amount: number;
+  user_id: string;
+  profiles?: {
+    first_name: string | null;
+    last_name: string | null;
+  };
+}
+
+interface OrderItemData {
+  id: string;
+  order_id: string;
+  product_id: string;
+  quantity: number;
+  unit_price: number;
+  product?: {
+    name: string;
+    price: number;
+    image_url: string | null;
+  };
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { isAdmin, isLoading: authLoading } = useAuth();
@@ -31,27 +57,27 @@ const AdminDashboard = () => {
         .from('products')
         .select('*', { count: 'exact', head: true });
         
-      // Get total orders count
+      // Get total orders count - using type assertion for now
       const { count: orderCount } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true });
+        .from('orders' as any)
+        .select('*', { count: 'exact', head: true }) as any;
         
       // Get orders with pending status count  
       const { count: pendingOrderCount } = await supabase
-        .from('orders')
+        .from('orders' as any)
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending');
+        .eq('status', 'pending') as any;
         
       // Get revenue (sum of order total_amount)
       const { data: revenueData } = await supabase
-        .from('orders')
-        .select('total_amount');
+        .from('orders' as any)
+        .select('total_amount') as any;
         
       const totalRevenue = revenueData?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
       
       // Get recent orders
       const { data: recentOrders } = await supabase
-        .from('orders')
+        .from('orders' as any)
         .select(`
           id, 
           created_at, 
@@ -61,7 +87,7 @@ const AdminDashboard = () => {
           profiles:user_id (first_name, last_name)
         `)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(5) as { data: OrderData[] | null };
       
       // Get low stock products (stock < 10)
       const { data: lowStockProducts } = await supabase
@@ -73,11 +99,11 @@ const AdminDashboard = () => {
         
       return {
         productCount,
-        orderCount,
-        pendingOrderCount,
+        orderCount: orderCount || 0,
+        pendingOrderCount: pendingOrderCount || 0,
         totalRevenue,
-        recentOrders,
-        lowStockProducts
+        recentOrders: recentOrders || [],
+        lowStockProducts: lowStockProducts || []
       };
     },
     enabled: !!isAdmin
@@ -182,7 +208,7 @@ const AdminDashboard = () => {
                     <CardContent>
                       {dashboardData?.recentOrders?.length ? (
                         <div className="space-y-4">
-                          {dashboardData.recentOrders.map((order) => (
+                          {dashboardData.recentOrders.map((order: OrderData) => (
                             <div 
                               key={order.id} 
                               className="flex justify-between items-center"
