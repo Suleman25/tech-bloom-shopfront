@@ -4,20 +4,30 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
 import ProductCard from '@/components/product/ProductCard';
-import ProductFilter from '@/components/product/ProductFilter';
+import ProductFilter, { FilterOptions } from '@/components/product/ProductFilter';
 import { Loader2 } from 'lucide-react';
 
 const Products = () => {
-  const [category, setCategory] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FilterOptions>({
+    categories: [],
+    priceRange: [0, 2000],
+    rating: null
+  });
   
   const { data: products, isLoading } = useQuery({
-    queryKey: ['products', category],
+    queryKey: ['products', filters],
     queryFn: async () => {
       let query = supabase.from('products').select('*');
       
-      if (category) {
-        query = query.eq('category', category);
+      // Apply category filter
+      if (filters.categories.length > 0) {
+        query = query.in('category', filters.categories);
       }
+      
+      // Apply price range filter
+      query = query
+        .gte('price', filters.priceRange[0])
+        .lte('price', filters.priceRange[1]);
       
       const { data, error } = await query;
       if (error) throw error;
@@ -25,20 +35,23 @@ const Products = () => {
     }
   });
   
+  const handleFilterChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+  };
+  
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col md:flex-row gap-6">
           <aside className="w-full md:w-64 shrink-0">
-            <ProductFilter 
-              selectedCategory={category} 
-              onCategoryChange={setCategory} 
-            />
+            <ProductFilter onFilterChange={handleFilterChange} />
           </aside>
           
           <div className="flex-1">
             <h1 className="text-2xl font-bold mb-6">
-              {category ? `${category} Products` : 'All Products'}
+              {filters.categories.length ? 
+                `${filters.categories.join(', ')} Products` : 
+                'All Products'}
             </h1>
             
             {isLoading ? (

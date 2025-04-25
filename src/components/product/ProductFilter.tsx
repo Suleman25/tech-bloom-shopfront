@@ -1,12 +1,13 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
 interface ProductFilterProps {
-  categories: string[];
   onFilterChange: (filters: FilterOptions) => void;
 }
 
@@ -16,11 +17,32 @@ export interface FilterOptions {
   rating: number | null;
 }
 
-const ProductFilter: React.FC<ProductFilterProps> = ({ categories, onFilterChange }) => {
+const ProductFilter: React.FC<ProductFilterProps> = ({ onFilterChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000]);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
+  
+  // Fetch categories from products table
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('category')
+        .not('category', 'is', null)
+        .order('category');
+        
+      if (error) throw error;
+      
+      // Extract unique categories
+      const uniqueCategories = Array.from(
+        new Set(data.map((item) => item.category))
+      ).filter(Boolean) as string[];
+      
+      return uniqueCategories;
+    }
+  });
 
   const toggleFilter = () => setIsOpen(!isOpen);
 
@@ -101,7 +123,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ categories, onFilterChang
           <div className="mb-6">
             <h3 className="font-medium mb-3">Categories</h3>
             <div className="space-y-2">
-              {categories.map(category => (
+              {categories && categories.map((category: string) => (
                 <div key={category} className="flex items-center space-x-2">
                   <Checkbox 
                     id={category} 
