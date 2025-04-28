@@ -19,6 +19,16 @@ const Navbar = () => {
     navigate('/auth');
   };
 
+  const goToDashboard = () => {
+    if (isAdmin) {
+      navigate('/admin/dashboard');
+    } else if (user) {
+      navigate('/user/dashboard');
+    } else {
+      navigate('/auth');
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
       <div className="container mx-auto px-4">
@@ -31,7 +41,9 @@ const Navbar = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-sm font-medium hover:text-brand-purple">Home</Link>
             <Link to="/products" className="text-sm font-medium hover:text-brand-purple">Products</Link>
-            <Link to="/orders" className="text-sm font-medium hover:text-brand-purple">Orders</Link>
+            {user && (
+              <Link to="/orders" className="text-sm font-medium hover:text-brand-purple">Orders</Link>
+            )}
             {isAdmin && (
               <Link 
                 to="/admin/dashboard" 
@@ -39,6 +51,14 @@ const Navbar = () => {
               >
                 <ShieldCheck className="w-4 h-4" />
                 Admin Panel
+              </Link>
+            )}
+            {user && !isAdmin && (
+              <Link 
+                to="/user/dashboard" 
+                className="text-sm font-medium hover:text-brand-purple"
+              >
+                Dashboard
               </Link>
             )}
           </nav>
@@ -55,6 +75,9 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {user ? (
               <>
+                <Button variant="ghost" size="icon" className="hidden md:flex items-center gap-2" onClick={goToDashboard}>
+                  <User className="w-5 h-5" />
+                </Button>
                 <Button variant="ghost" size="icon" className="hidden md:flex" onClick={handleSignOut}>
                   Sign Out
                 </Button>
@@ -88,7 +111,20 @@ const Navbar = () => {
           <nav className="flex flex-col py-4">
             <Link to="/" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Home</Link>
             <Link to="/products" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Products</Link>
-            <Link to="/orders" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Orders</Link>
+            
+            {user && (
+              <Link to="/orders" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Orders</Link>
+            )}
+            
+            {user && !isAdmin && (
+              <Link 
+                to="/user/dashboard" 
+                className="px-4 py-3 text-sm font-medium hover:bg-gray-50"
+              >
+                Dashboard
+              </Link>
+            )}
+            
             {isAdmin && (
               <Link 
                 to="/admin/dashboard" 
@@ -98,6 +134,7 @@ const Navbar = () => {
                 Admin Panel
               </Link>
             )}
+            
             {user ? (
               <button onClick={handleSignOut} className="px-4 py-3 text-sm font-medium hover:bg-gray-50">
                 Sign Out

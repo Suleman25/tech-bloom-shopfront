@@ -1,20 +1,26 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
-// Helper function to query tables not yet defined in the TypeScript types
-export const queryTable = (tableName: string) => {
-  // This is a workaround to allow querying tables that aren't in the TypeScript types
-  // @ts-ignore - intentionally ignoring type issues to work around limitations
-  return supabase.from(tableName);
-};
+/**
+ * A helper function to query any table in Supabase without type safety
+ */
+export function queryTable(table: string) {
+  // @ts-ignore - Intentionally bypassing type safety
+  return supabase.from(table);
+}
 
-// Helper function to execute raw SQL queries if needed
-export const rpc = (functionName: string, params?: Record<string, any>) => {
-  // @ts-ignore - intentionally ignoring type issues to work around limitations
-  return supabase.rpc(functionName, params);
-};
+/**
+ * A helper function to call RPC functions in Supabase without type safety
+ */
+export function rpc(fn: string, params?: Record<string, unknown>) {
+  // @ts-ignore - Intentionally bypassing type safety
+  return supabase.rpc(fn, params);
+}
 
-// Type assertion helper to safely cast data from untyped tables
-export const safelyAssertType = <T>(data: any): T => {
+/**
+ * A helper function to safely assert the type of a response
+ */
+export function safelyAssertType<T>(data: any): T {
   return data as T;
-};
+}

@@ -1,40 +1,49 @@
-
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
-import { Loader2, ChevronRight, Package, Clock, Check, AlertTriangle } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
 import { Order } from '@/types/order';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Loader2, Package, Clock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const Orders = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  
   const { data: orders, isLoading } = useQuery({
-    queryKey: ['orders', user?.id],
+    queryKey: ['user-orders', user?.id, selectedStatus],
     queryFn: async () => {
       if (!user) return [];
-
-      const { data, error } = await queryTable('orders')
+      
+      let query = queryTable('orders')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
-
+        
+      if (selectedStatus !== 'all') {
+        query = query.eq('status', selectedStatus);
+      }
+      
+      const { data, error } = await query;
       if (error) throw error;
+      
       return safelyAssertType<Order[]>(data);
     },
     enabled: !!user,
   });
-
-  const filteredOrders = statusFilter === 'all'
-    ? orders
-    : orders?.filter(order => order.status === statusFilter);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -43,9 +52,9 @@ const Orders = () => {
       case 'shipped':
         return <Package className="h-5 w-5 text-blue-500" />;
       case 'delivered':
-        return <Check className="h-5 w-5 text-green-500" />;
+        return <Package className="h-5 w-5 text-green-500" />;
       case 'cancelled':
-        return <AlertTriangle className="h-5 w-5 text-red-500" />;
+        return <Package className="h-5 w-5 text-red-500" />;
       default:
         return <Clock className="h-5 w-5 text-gray-500" />;
     }
@@ -69,70 +78,84 @@ const Orders = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Your Orders</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">My Orders</h1>
+          <Button onClick={() => navigate('/user/dashboard')}>Dashboard</Button>
+        </div>
 
-        {isLoading ? (
-          <div className="flex justify-center items-center h-[40vh]">
-            <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="px-4 pt-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Order History</h2>
+              <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="shipped">Shipped</SelectItem>
+                  <SelectItem value="delivered">Delivered</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        ) : !user ? (
-          <div className="text-center py-12">
-            <h2 className="text-xl font-semibold mb-4">You need to log in to view your orders</h2>
-            <Button onClick={() => navigate('/auth')}>Log In</Button>
-          </div>
-        ) : !orders || orders.length === 0 ? (
-          <div className="text-center py-12">
-            <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">No orders yet</h2>
-            <p className="text-gray-500 mb-6">Looks like you haven't placed any orders yet.</p>
-            <Button onClick={() => navigate('/products')}>Browse Products</Button>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <Tabs defaultValue="all" onValueChange={setStatusFilter}>
-              <div className="px-4 pt-4">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="pending">Pending</TabsTrigger>
-                  <TabsTrigger value="shipped">Shipped</TabsTrigger>
-                  <TabsTrigger value="delivered">Delivered</TabsTrigger>
-                </TabsList>
-              </div>
-              
-              <TabsContent value={statusFilter}>
-                <div className="divide-y">
-                  {filteredOrders?.map((order) => (
-                    <div 
+
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
+            </div>
+          ) : !orders?.length ? (
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 mx-auto text-gray-400 mb-3" />
+              <p className="text-gray-500">No orders found</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Order ID</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {orders.map((order) => (
+                    <TableRow 
                       key={order.id}
-                      className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="cursor-pointer"
                       onClick={() => navigate(`/order-confirmation/${order.id}`)}
                     >
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                        <div className="flex items-center gap-4">
+                      <TableCell className="font-medium">{order.id.slice(0, 8)}</TableCell>
+                      <TableCell>
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>${order.total_amount?.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
                           {getStatusIcon(order.status)}
-                          <div>
-                            <p className="font-medium">Order #{order.id.slice(0, 8)}</p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(order.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 ml-auto">
                           {getStatusBadge(order.status)}
-                          <div className="text-right">
-                            <p className="font-medium">${order.total_amount?.toFixed(2)}</p>
-                          </div>
-                          <ChevronRight className="h-5 w-5 text-gray-400" />
                         </div>
-                      </div>
-                    </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" size="sm" onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/order-confirmation/${order.id}`);
+                        }}>
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

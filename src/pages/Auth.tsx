@@ -24,7 +24,7 @@ const Auth = () => {
       if (isAdmin) {
         navigate('/admin/dashboard');
       } else {
-        navigate('/');
+        navigate('/user/dashboard');
       }
     }
   }, [user, isAdmin, navigate]);

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 import Orders from "./pages/Orders";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminOrders from "./pages/AdminOrders";
+import UserDashboard from "./pages/UserDashboard";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -55,6 +57,25 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   
   if (!isAdmin) {
     return <Navigate to="/" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+// User route component - ensures admins cannot access regular user pages
+const UserRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isAdmin, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+  
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+  
+  if (isAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
   }
   
   return <>{children}</>;
@@ -105,6 +126,14 @@ const AppRoutes = () => {
           <AdminRoute>
             <OrderConfirmation />
           </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/user/dashboard" 
+        element={
+          <UserRoute>
+            <UserDashboard />
+          </UserRoute>
         } 
       />
       <Route 
