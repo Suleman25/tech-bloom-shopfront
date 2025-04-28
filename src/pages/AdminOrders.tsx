@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
@@ -75,7 +74,6 @@ const AdminOrders = () => {
       
       if (error) throw error;
       
-      // Type assertion to cast the result to the expected type
       return safelyAssertType<OrderWithProfile[]>(data);
     },
     enabled: !!isAdmin,
@@ -213,7 +211,6 @@ const AdminOrders = () => {
                           key={order.id}
                           className="cursor-pointer"
                           onClick={(e) => {
-                            // Prevent navigation when clicking on the select
                             if ((e.target as HTMLElement)?.closest('select') || 
                                 (e.target as HTMLElement)?.closest('[role="combobox"]')) {
                               return;
