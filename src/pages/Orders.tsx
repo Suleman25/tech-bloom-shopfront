@@ -1,9 +1,10 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
-import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
+import { queryTable, assertType } from '@/utils/supabaseHelpers';
 import { Order } from '@/types/order';
 import { Button } from '@/components/ui/button';
 import {
@@ -28,7 +29,7 @@ const Orders = () => {
     queryFn: async () => {
       if (!user) return [];
       
-      let query = queryTable('orders')
+      let query = queryTable<Order>('orders')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -40,7 +41,7 @@ const Orders = () => {
       const { data, error } = await query;
       if (error) throw error;
       
-      return safelyAssertType<Order[]>(data);
+      return assertType<Order[]>(data || []);
     },
     enabled: !!user,
   });

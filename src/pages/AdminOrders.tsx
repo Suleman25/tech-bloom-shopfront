@@ -1,10 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
-import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
+import { queryTable, assertType } from '@/utils/supabaseHelpers';
 import {
   Table,
   TableBody,
@@ -41,7 +40,6 @@ const AdminOrders = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Redirect to admin dashboard on mount
   useEffect(() => {
     if (!authLoading && !isAdmin) {
       navigate('/');
@@ -54,7 +52,7 @@ const AdminOrders = () => {
     queryFn: async () => {
       if (!isAdmin) return [];
       
-      let query = queryTable('orders')
+      let query = queryTable<OrderWithProfile>('orders')
         .select(`
           id, 
           user_id,
@@ -75,7 +73,7 @@ const AdminOrders = () => {
       
       if (error) throw error;
       
-      return safelyAssertType<OrderWithProfile[]>(data);
+      return assertType<OrderWithProfile[]>(data || []);
     },
     enabled: !!isAdmin,
   });

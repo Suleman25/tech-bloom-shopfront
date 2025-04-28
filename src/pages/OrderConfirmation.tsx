@@ -1,7 +1,8 @@
+
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { queryTable, safelyAssertType } from '@/utils/supabaseHelpers';
+import { queryTable, assertType } from '@/utils/supabaseHelpers';
 import Layout from '@/components/layout/Layout';
 import { Order } from '@/types/order';
 import { useAuth } from '@/contexts/AuthContext';
@@ -35,6 +36,8 @@ const OrderConfirmation = () => {
   const { data: order, isLoading: orderLoading } = useQuery({
     queryKey: ['order', orderId],
     queryFn: async () => {
+      if (!orderId) throw new Error("Order ID is required");
+      
       const query = queryTable('orders')
         .select('*')
         .eq('id', orderId)
@@ -42,7 +45,7 @@ const OrderConfirmation = () => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return safelyAssertType<Order>(data);
+      return assertType<Order>(data);
     },
     enabled: !!orderId,
   });
@@ -51,6 +54,8 @@ const OrderConfirmation = () => {
   const { data: orderItems, isLoading: itemsLoading } = useQuery({
     queryKey: ['orderItems', orderId],
     queryFn: async () => {
+      if (!orderId) throw new Error("Order ID is required");
+      
       const { data, error } = await queryTable('order_items')
         .select(`
           *,
@@ -59,7 +64,7 @@ const OrderConfirmation = () => {
         .eq('order_id', orderId);
       
       if (error) throw error;
-      return safelyAssertType<OrderItemWithProduct[]>(data);
+      return assertType<OrderItemWithProduct[]>(data);
     },
     enabled: !!orderId,
   });
@@ -141,7 +146,7 @@ const OrderConfirmation = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="font-medium">${(item.products?.price || 0 * item.quantity).toFixed(2)}</p>
+                  <p className="font-medium">${((item.products?.price || 0) * item.quantity).toFixed(2)}</p>
                 </div>
               </div>
             ))}
