@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -38,25 +37,23 @@ const OrderConfirmation = () => {
     queryFn: async () => {
       if (!orderId) throw new Error("Order ID is required");
       
-      const query = queryTable('orders')
+      const { data, error } = await queryTable<Order>('orders')
         .select('*')
         .eq('id', orderId)
         .single();
 
-      const { data, error } = await query;
       if (error) throw error;
       return assertType<Order>(data);
     },
     enabled: !!orderId,
   });
 
-  // Use a similar approach for order items
   const { data: orderItems, isLoading: itemsLoading } = useQuery({
     queryKey: ['orderItems', orderId],
     queryFn: async () => {
       if (!orderId) throw new Error("Order ID is required");
       
-      const { data, error } = await queryTable('order_items')
+      const { data, error } = await queryTable<OrderItemWithProduct[]>('order_items')
         .select(`
           *,
           products:product_id (*)
@@ -64,17 +61,14 @@ const OrderConfirmation = () => {
         .eq('order_id', orderId);
       
       if (error) throw error;
-      return assertType<OrderItemWithProduct[]>(data);
+      return assertType<OrderItemWithProduct[]>(data || []);
     },
     enabled: !!orderId,
   });
 
-  // Check access control - only the order owner or an admin can view an order
   useEffect(() => {
     if (!orderLoading && order && user && !isAdmin && order.user_id !== user.id) {
-      // Handle unauthorized access
       console.error("Unauthorized access to order");
-      // Redirect or show error message
     }
   }, [order, user, orderLoading, isAdmin]);
 

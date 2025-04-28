@@ -53,12 +53,12 @@ const Checkout = () => {
       
       const productIds = items.map(item => item.product_id);
       
-      const { data, error } = await queryTable('products')
+      const { data, error } = await queryTable<Product[]>('products')
         .select('*')
         .in('id', productIds);
         
       if (error) throw error;
-      return safelyAssertType<Product[]>(data);
+      return safelyAssertType<Product[]>(data || []);
     },
     enabled: items.length > 0
   });
@@ -136,7 +136,9 @@ const Checkout = () => {
       
       // Clear cart (delete all items)
       for (const item of items) {
-        await queryTable('cart_items').delete().eq('id', item.id);
+        await queryTable('cart_items')
+          .delete()
+          .eq('id', item.id);
       }
       
       toast.success('Order placed successfully!');

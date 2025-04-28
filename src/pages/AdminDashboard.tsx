@@ -1,4 +1,3 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +14,7 @@ import {
   Loader2,
   Box,
 } from 'lucide-react';
+import { queryTable, assertType } from '@/utils/supabaseHelpers';
 
 // Define types for order data since they're not in the Supabase types yet
 interface OrderData {
@@ -56,27 +56,23 @@ const AdminDashboard = () => {
         .from('products')
         .select('*', { count: 'exact', head: true });
         
-      // Get total orders count - using type assertion for now
-      const { count: orderCount } = await supabase
-        .from('orders')
+      // Get total orders count
+      const { count: orderCount } = await queryTable('orders')
         .select('*', { count: 'exact', head: true });
         
       // Get orders with pending status count  
-      const { count: pendingOrderCount } = await supabase
-        .from('orders')
+      const { count: pendingOrderCount } = await queryTable('orders')
         .select('*', { count: 'exact', head: true })
         .eq('status', 'pending');
         
       // Get revenue (sum of order total_amount)
-      const { data: revenueData } = await supabase
-        .from('orders')
+      const { data: revenueData } = await queryTable<{ total_amount: number }[]>('orders')
         .select('total_amount');
         
       const totalRevenue = revenueData?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
       
       // Get recent orders
-      const { data: recentOrders } = await supabase
-        .from('orders')
+      const { data: recentOrders } = await queryTable<OrderData[]>('orders')
         .select(`
           id, 
           created_at, 

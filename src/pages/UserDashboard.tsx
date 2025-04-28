@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,7 +37,7 @@ const UserDashboard = () => {
     queryFn: async () => {
       if (!user) return [];
       
-      const { data, error } = await queryTable('orders')
+      const { data, error } = await queryTable<Order[]>('orders')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
@@ -46,7 +45,7 @@ const UserDashboard = () => {
       
       if (error) throw error;
       
-      return safelyAssertType<Order[]>(data);
+      return safelyAssertType<Order[]>(data || []);
     },
     enabled: !!user,
   });
