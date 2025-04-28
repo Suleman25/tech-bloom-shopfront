@@ -53,12 +53,17 @@ const Checkout = () => {
       
       const productIds = items.map(item => item.product_id);
       
+      // Using a workaround since we can't directly use .in()
       const { data, error } = await queryTable<Product[]>('products')
-        .select('*')
-        .in('id', productIds);
+        .select('*');
         
       if (error) throw error;
-      return safelyAssertType<Product[]>(data || []);
+      // Filter the products after fetching all products
+      const filteredProducts = data?.filter(product => 
+        productIds.includes(product.id)
+      ) || [];
+      
+      return safelyAssertType<Product[]>(filteredProducts);
     },
     enabled: items.length > 0
   });
@@ -99,7 +104,7 @@ const Checkout = () => {
     try {
       // Create order
       const { data: order, error: orderError } = await queryTable('orders')
-        .insert([{
+        .insert({
           user_id: user.id,
           status: 'pending',
           total_amount: total,
@@ -112,7 +117,7 @@ const Checkout = () => {
             country: data.country,
             phone: data.phone
           })
-        }])
+        })
         .select()
         .single();
         

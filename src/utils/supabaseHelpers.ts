@@ -6,10 +6,10 @@ import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
  * A helper function to query any table in Supabase without type safety
  * Returns the query builder for further chaining
  */
-export function queryTable<T = any>(table: string) {
+export function queryTable<T = any>(table: string): PostgrestFilterBuilder<any, any, T> {
   // Direct client usage to bypass TypeScript restrictions
   const client = supabase as any;
-  return client.from(table) as PostgrestFilterBuilder<any, any, T>;
+  return client.from(table);
 }
 
 /**
