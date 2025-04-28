@@ -29,10 +29,10 @@ const Orders = () => {
       if (!user) return [];
       
       let query = queryTable<Order>('orders')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('*');
         
+      query = query.eq('user_id', user.id).order('created_at', { ascending: false });
+      
       if (selectedStatus !== 'all') {
         query = query.eq('status', selectedStatus);
       }

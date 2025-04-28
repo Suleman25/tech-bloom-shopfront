@@ -69,7 +69,9 @@ const AdminOrders = () => {
         query = query.eq('status', statusFilter);
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      query = query.order('created_at', { ascending: false });
+      
+      const { data, error } = await query;
       
       if (error) throw error;
       
