@@ -13,7 +13,6 @@ import {
   ShoppingCart,
   DollarSign,
   Loader2,
-  Users,
   Box,
 } from 'lucide-react';
 
@@ -59,25 +58,25 @@ const AdminDashboard = () => {
         
       // Get total orders count - using type assertion for now
       const { count: orderCount } = await supabase
-        .from('orders' as any)
-        .select('*', { count: 'exact', head: true }) as any;
+        .from('orders')
+        .select('*', { count: 'exact', head: true });
         
       // Get orders with pending status count  
       const { count: pendingOrderCount } = await supabase
-        .from('orders' as any)
+        .from('orders')
         .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending') as any;
+        .eq('status', 'pending');
         
       // Get revenue (sum of order total_amount)
       const { data: revenueData } = await supabase
-        .from('orders' as any)
-        .select('total_amount') as any;
+        .from('orders')
+        .select('total_amount');
         
       const totalRevenue = revenueData?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
       
       // Get recent orders
       const { data: recentOrders } = await supabase
-        .from('orders' as any)
+        .from('orders')
         .select(`
           id, 
           created_at, 
@@ -87,7 +86,7 @@ const AdminDashboard = () => {
           profiles:user_id (first_name, last_name)
         `)
         .order('created_at', { ascending: false })
-        .limit(5) as { data: OrderData[] | null };
+        .limit(5);
       
       // Get low stock products (stock < 10)
       const { data: lowStockProducts } = await supabase
@@ -98,7 +97,7 @@ const AdminDashboard = () => {
         .limit(5);
         
       return {
-        productCount,
+        productCount: productCount || 0,
         orderCount: orderCount || 0,
         pendingOrderCount: pendingOrderCount || 0,
         totalRevenue,
@@ -129,11 +128,27 @@ const AdminDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
         
+        <div className="flex justify-end mb-4">
+          <div className="space-x-2">
+            <button 
+              onClick={() => navigate('/admin')}
+              className="px-4 py-2 bg-brand-purple text-white rounded-md hover:bg-brand-purple/90 transition"
+            >
+              Manage Products
+            </button>
+            <button 
+              onClick={() => navigate('/admin/orders')}
+              className="px-4 py-2 bg-brand-purple text-white rounded-md hover:bg-brand-purple/90 transition"
+            >
+              View Orders
+            </button>
+          </div>
+        </div>
+        
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-3 lg:w-[400px]">
+          <TabsList className="grid grid-cols-2 lg:w-[400px]">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="products" onClick={() => navigate('/admin')}>Products</TabsTrigger>
-            <TabsTrigger value="orders" onClick={() => navigate('/admin/orders')}>Orders</TabsTrigger>
           </TabsList>
           
           <TabsContent value="overview" className="space-y-6">
@@ -151,13 +166,13 @@ const AdminDashboard = () => {
                     </CardHeader>
                     <CardContent>
                       <div className="text-2xl font-bold">${dashboardData?.totalRevenue.toFixed(2)}</div>
-                      <p className="text-xs text-muted-foreground">Lifetime sales</p>
+                      <p className="text-xs text-muted-foreground">From all sales</p>
                     </CardContent>
                   </Card>
                   
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">Orders</CardTitle>
+                      <CardTitle className="text-sm font-medium">Customer Orders</CardTitle>
                       <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
@@ -195,7 +210,7 @@ const AdminDashboard = () => {
                           ? (dashboardData.totalRevenue / dashboardData.orderCount).toFixed(2)
                           : '0.00'}
                       </div>
-                      <p className="text-xs text-muted-foreground">Per order</p>
+                      <p className="text-xs text-muted-foreground">Per customer order</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -203,7 +218,7 @@ const AdminDashboard = () => {
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Recent Orders</CardTitle>
+                      <CardTitle>Recent Customer Orders</CardTitle>
                     </CardHeader>
                     <CardContent>
                       {dashboardData?.recentOrders?.length ? (
@@ -212,7 +227,7 @@ const AdminDashboard = () => {
                             <div 
                               key={order.id} 
                               className="flex justify-between items-center"
-                              onClick={() => navigate(`/admin/orders/${order.id}`)}
+                              onClick={() => navigate(`/order-confirmation/${order.id}`)}
                               style={{ cursor: 'pointer' }}
                             >
                               <div>

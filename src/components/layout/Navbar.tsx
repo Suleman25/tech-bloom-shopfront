@@ -40,9 +40,11 @@ const Navbar = () => {
 
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-sm font-medium hover:text-brand-purple">Home</Link>
-            <Link to="/products" className="text-sm font-medium hover:text-brand-purple">Products</Link>
-            {user && (
-              <Link to="/orders" className="text-sm font-medium hover:text-brand-purple">Orders</Link>
+            {!isAdmin && (
+              <Link to="/products" className="text-sm font-medium hover:text-brand-purple">Products</Link>
+            )}
+            {user && !isAdmin && (
+              <Link to="/orders" className="text-sm font-medium hover:text-brand-purple">My Orders</Link>
             )}
             {isAdmin && (
               <Link 
@@ -64,12 +66,16 @@ const Navbar = () => {
           </nav>
 
           <div className="hidden md:flex relative w-64 lg:w-80">
-            <Input 
-              type="text" 
-              placeholder="Search products..." 
-              className="pl-10 pr-4 py-2 rounded-full"
-            />
-            <Search className="absolute left-3 top-2.5 text-gray-400 w-4 h-4" />
+            {!isAdmin && (
+              <>
+                <Input 
+                  type="text" 
+                  placeholder="Search products..." 
+                  className="pl-10 pr-4 py-2 rounded-full"
+                />
+                <Search className="absolute left-3 top-2.5 text-gray-400 w-4 h-4" />
+              </>
+            )}
           </div>
 
           <div className="flex items-center space-x-4">
@@ -87,33 +93,38 @@ const Navbar = () => {
                 <User className="w-5 h-5" />
               </Button>
             )}
-            <Cart />
+            {/* Only show cart for non-admin users */}
+            {!isAdmin && <Cart />}
             <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu}>
               {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
           </div>
         </div>
 
-        <div className="md:hidden py-3">
-          <div className="relative">
-            <Input 
-              type="text" 
-              placeholder="Search products..." 
-              className="pl-10 pr-4 py-2 w-full rounded-full"
-            />
-            <Search className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
+        {!isAdmin && (
+          <div className="md:hidden py-3">
+            <div className="relative">
+              <Input 
+                type="text" 
+                placeholder="Search products..." 
+                className="pl-10 pr-4 py-2 w-full rounded-full"
+              />
+              <Search className="absolute left-3 top-3 text-gray-400 w-4 h-4" />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100">
           <nav className="flex flex-col py-4">
             <Link to="/" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Home</Link>
-            <Link to="/products" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Products</Link>
+            {!isAdmin && (
+              <Link to="/products" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Products</Link>
+            )}
             
-            {user && (
-              <Link to="/orders" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">Orders</Link>
+            {user && !isAdmin && (
+              <Link to="/orders" className="px-4 py-3 text-sm font-medium hover:bg-gray-50">My Orders</Link>
             )}
             
             {user && !isAdmin && (
